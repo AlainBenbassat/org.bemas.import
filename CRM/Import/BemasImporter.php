@@ -41,11 +41,11 @@ class CRM_Import_BemasImporter {
         ";
         $sqlUpdateParams = [
           1 => [$dao->address_id, 'Integer'],
-          2 => [$dao->street_address, 'String'],
-          3 => [$dao->supplemental_address_1, 'String'],
-          4 => [$dao->supplemental_address_2, 'String'],
-          5 => [$dao->postal_code, 'String'],
-          6 => [$dao->city, 'String'],
+          2 => [$dao->street_address . '', 'String'],
+          3 => [$dao->supplemental_address_1 . '', 'String'],
+          4 => [$dao->supplemental_address_2 . '', 'String'],
+          5 => [$dao->postal_code . '', 'String'],
+          6 => [$dao->city . '', 'String'],
         ];
         CRM_Core_DAO::executeQuery($sqlUpdate, $sqlUpdateParams);
       }
