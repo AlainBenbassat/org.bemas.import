@@ -21,6 +21,7 @@ class CRM_Import_Form_BemasImport extends CRM_Core_Form {
     $importMenuOptions = [
       'em_participants' => 'Importeer Euromaintenance 4.0 deelnemers',
       'tmp_corrected_locblocks' => 'Corrigeer locaties evementen',
+      'work_address' => 'Verander werk-adres in Main',
     ];
     $this->addRadio('import', 'Import:', $importMenuOptions, NULL, '<br>');
 
@@ -42,7 +43,36 @@ class CRM_Import_Form_BemasImport extends CRM_Core_Form {
 
     if ($values['import'] !== '') {
       // put all id's in the queue
-      $sql = "select id from " . $values['import'];
+      if ($values['import'] == 'work_address') {
+        $sql = "
+          select
+            c.id
+            , c.display_name
+            , SUBSTRING(c.preferred_language, 1, 2) lang
+            , e_main.id main_id
+            , e_main.email main
+            , e_work.id work_id
+            , e_work.email workz
+            , e_bill.id bill_id
+            , e_bill.email bill
+          from
+            civicrm_contact c
+          left outer join	
+            civicrm_email e_main on e_main.contact_id = c.id and e_main.location_type_id = 3
+          left outer join	
+            civicrm_email e_work on e_work.contact_id = c.id and e_work.location_type_id = 2
+          left outer join	
+            civicrm_email e_bill on e_bill.contact_id = c.id and e_bill.location_type_id = 5	
+          where
+            e_main.email = e_work.email
+          and
+            c.is_deleted = 0
+        ";
+      }
+      else {
+        $sql = "select id from " . $values['import'];
+      }
+
       $dao = CRM_Core_DAO::executeQuery($sql);
       while ($dao->fetch()) {
         $method = 'process_' . $values['import'] . '_task';

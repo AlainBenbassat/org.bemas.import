@@ -9,6 +9,44 @@ class CRM_Import_BemasImporter {
 
   }
 
+  public static function process_work_address_task(CRM_Queue_TaskContext $ctx, $id) {
+    // select all e-mailadresses
+    $sql = "
+      select
+        c.id
+        , c.display_name
+        , SUBSTRING(c.preferred_language, 1, 2) lang
+        , e_main.id main_id
+        , e_main.email main
+        , e_main.is_primary main_prim
+        , e_work.id work_id
+        , e_work.email workz
+        , e_work.is_primary work_prim
+        , e_bill.id bill_id
+        , e_bill.email bill
+      from
+        civicrm_contact c
+      left outer join	
+        civicrm_email e_main on e_main.contact_id = c.id and e_main.location_type_id = 3
+      left outer join	
+        civicrm_email e_work on e_work.contact_id = c.id and e_work.location_type_id = 2
+      left outer join	
+        civicrm_email e_bill on e_bill.contact_id = c.id and e_bill.location_type_id = 5	
+      where
+        c.id = $id
+    ";
+    $dao = CRM_Core_DAO::executeQuery($sql);
+    if ($dao->fetch()) {
+      if ($dao->main && $dao->workz && $dao->main == $dao->workz) {
+        if ($dao->work_prim == 1) {
+          // set main as prim
+          CRM_Core_DAO::executeQuery("update civicrm_email set is_primary = 1 where id = " . $dao->main_id);
+        }
+        CRM_Core_DAO::executeQuery("delete from civicrm_email where id = " . $dao->work_id);
+      }
+    }
+  }
+
   public static function process_tmp_corrected_locblocks_task(CRM_Queue_TaskContext $ctx, $id) {
     $sql = "
       select
