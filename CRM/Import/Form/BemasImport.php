@@ -41,6 +41,10 @@ class CRM_Import_Form_BemasImport extends CRM_Core_Form {
   public function postProcess() {
     $values = $this->exportValues();
 
+    if ($this->queue->numberOfItems() > 0) {
+      $this->queue->deleteQueue();
+    }
+
     if ($values['import'] !== '') {
       // put all id's in the queue
       if ($values['import'] == 'work_address') {
