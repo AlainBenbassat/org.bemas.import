@@ -45,6 +45,8 @@ class CRM_Import_BemasImporter {
         CRM_Core_DAO::executeQuery("delete from civicrm_email where id = " . $dao->work_id);
       }
     }
+
+    return TRUE;
   }
 
   public static function process_tmp_corrected_locblocks_task(CRM_Queue_TaskContext $ctx, $id) {
