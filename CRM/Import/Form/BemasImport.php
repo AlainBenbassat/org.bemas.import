@@ -42,7 +42,7 @@ class CRM_Import_Form_BemasImport extends CRM_Core_Form {
     $values = $this->exportValues();
 
     if ($this->queue->numberOfItems() > 0) {
-      $this->queue->deleteQueue();
+//      $this->queue->deleteQueue();
     }
 
     if ($values['import'] !== '') {
